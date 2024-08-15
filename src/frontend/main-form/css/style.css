@@ -53,6 +53,16 @@ video {
     height: 240px;
     border: 1px solid #ccc;
     margin-bottom: 1rem;
+    position: relative;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 320px;
+    height: 240px;
+    z-index: 20;
 }
 
 button {
@@ -69,16 +79,4 @@ button {
 
 button:hover {
     background-color: #003d80;
-}
-
-canvas {
-    display: none;
-}
-
-img#photo {
-    display: block;
-    margin-top: 1rem;
-    width: 320px;
-    height: 261px;
-    border: 1px solid #ccc;
 }
