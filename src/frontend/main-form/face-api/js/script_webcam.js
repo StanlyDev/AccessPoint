@@ -1,5 +1,3 @@
-// script_webcam.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const elVideo = document.getElementById('videoInput');
     const canvas = document.getElementById('overlay');
@@ -31,11 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
     ]).then(cargarCamera);
 
     elVideo.addEventListener('play', async () => {
-        // Asegúrate de que el video tenga dimensiones válidas
-        if (elVideo.videoWidth === 0 || elVideo.videoHeight === 0) {
-            console.error('El video no tiene dimensiones válidas.');
-            return;
-        }
+        // Ajustar el tamaño del canvas al del video
+        const resizeCanvas = () => {
+            canvas.width = elVideo.videoWidth;
+            canvas.height = elVideo.videoHeight;
+        };
+        
+        // Llamar a la función de ajuste inicial
+        resizeCanvas();
+
+        // Ajustar el tamaño del canvas cuando el tamaño del video cambie
+        elVideo.addEventListener('resize', resizeCanvas);
 
         const displaySize = { width: elVideo.videoWidth, height: elVideo.videoHeight };
         faceapi.matchDimensions(canvas, displaySize);
