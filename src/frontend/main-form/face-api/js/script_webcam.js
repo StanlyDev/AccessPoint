@@ -1,42 +1,64 @@
-const video = document.getElementById('videoInput');
-const canvas = document.getElementById('overlay');
+const elVideo = document.getElementById('videoInput')
 
-// Inicializar la cámara
-async function initVideo() {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-    video.srcObject = stream;
-    return new Promise(resolve => video.onloadedmetadata = () => resolve());
+navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+
+const cargarCamera = () => {
+    navigator.getMedia(
+        {
+            video: true,
+            audio: false
+        },
+        stream => elVideo.srcObject = stream,
+        console.error
+    )
 }
 
-// Procesar el video
-async function onPlay() {
-    const MODEL_URL = '/src/frontend/main-form/face-api/models';
+// Cargar Modelos
+Promise.all([
+    faceapi.nets.ssdMobilenetv1.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.ageGenderNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.faceExpressionNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.faceLandmark68TinyNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.ssdMobilenetv1.loadFromUri('/src/frontend/main-form/face-api/models'),
+    faceapi.nets.tinyFaceDetector.loadFromUri('/src/frontend/main-form/face-api/models'),
+]).then(cargarCamera)
 
-    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+elVideo.addEventListener('play', async () => {
+    // creamos el canvas con los elementos de la face api
+    const canvas = faceapi.createCanvasFromMedia(elVideo)
+    // lo añadimos al body
+    document.body.append(canvas)
 
-    video.addEventListener('play', async () => {
-        const displaySize = { width: video.width, height: video.height };
-        faceapi.matchDimensions(canvas, displaySize);
+    // tamaño del canvas
+    const displaySize = { width: elVideo.width, height: elVideo.height }
+    faceapi.matchDimensions(canvas, displaySize)
 
-        const detectFaces = async () => {
-            const fullFaceDescriptions = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
-                .withFaceLandmarks()
-                .withFaceDescriptors();
+    setInterval(async () => {
+        // hacer las detecciones de cara
+        const detections = await faceapi.detectAllFaces(elVideo)
+            .withFaceLandmarks()
+            .withFaceExpressions()
+            .withAgeAndGender()
+            .withFaceDescriptors()
 
-            const resizedResults = faceapi.resizeResults(fullFaceDescriptions, displaySize);
+        // ponerlas en su sitio
+        const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            faceapi.draw.drawDetections(canvas, resizedResults);
-            faceapi.draw.drawFaceLandmarks(canvas, resizedResults);
+        // limpiar el canvas
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
 
-            requestAnimationFrame(detectFaces);
-        };
+        // dibujar las líneas
+        faceapi.draw.drawDetections(canvas, resizedDetections)
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
+        faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
 
-        detectFaces();
-    });
-}
-
-// Inicializar video y comenzar el procesamiento
-initVideo().then(onPlay).catch(console.error);
+        resizedDetections.forEach(detection => {
+            const box = detection.detection.box
+            new faceapi.draw.DrawBox(box, {
+                label: Math.round(detection.age) + ' años ' + detection.gender
+            }).draw(canvas)
+        })
+    })
+})
