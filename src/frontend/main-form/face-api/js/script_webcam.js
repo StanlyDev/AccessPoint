@@ -1,64 +1,66 @@
-const elVideo = document.getElementById('videoInput')
+// script_webcam.js
 
-navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+document.addEventListener('DOMContentLoaded', () => {
+    const elVideo = document.getElementById('videoInput');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
 
-const cargarCamera = () => {
-    navigator.getMedia(
-        {
-            video: true,
-            audio: false
-        },
-        stream => elVideo.srcObject = stream,
-        console.error
-    )
-}
+    navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia);
 
-// Cargar Modelos
-Promise.all([
-    faceapi.nets.ssdMobilenetv1.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.ageGenderNet.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.faceExpressionNet.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.faceLandmark68TinyNet.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.faceRecognitionNet.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.ssdMobilenetv1.loadFromUri('/src/frontend/main-form/face-api/models'),
-    faceapi.nets.tinyFaceDetector.loadFromUri('/src/frontend/main-form/face-api/models'),
-]).then(cargarCamera)
+    const cargarCamera = () => {
+        navigator.getMedia(
+            {
+                video: true,
+                audio: false
+            },
+            stream => {
+                elVideo.srcObject = stream;
+                console.log("Stream de cámara cargado:", stream);
+            },
+            console.error
+        );
+    };
 
-elVideo.addEventListener('play', async () => {
-    // creamos el canvas con los elementos de la face api
-    const canvas = faceapi.createCanvasFromMedia(elVideo)
-    // lo añadimos al body
-    document.body.append(canvas)
+    // Cargar Modelos
+    Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/src/frontend/main-form/face-api/models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/src/frontend/main-form/face-api/models'),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/src/frontend/main-form/face-api/models'),
+        faceapi.nets.tinyFaceDetector.loadFromUri('/src/frontend/main-form/face-api/models'),
+    ]).then(cargarCamera);
 
-    // tamaño del canvas
-    const displaySize = { width: elVideo.width, height: elVideo.height }
-    faceapi.matchDimensions(canvas, displaySize)
+    elVideo.addEventListener('play', async () => {
+        // Asegúrate de que el video tenga dimensiones válidas
+        if (elVideo.videoWidth === 0 || elVideo.videoHeight === 0) {
+            console.error('El video no tiene dimensiones válidas.');
+            return;
+        }
 
-    setInterval(async () => {
-        // hacer las detecciones de cara
-        const detections = await faceapi.detectAllFaces(elVideo)
-            .withFaceLandmarks()
-            .withFaceExpressions()
-            .withAgeAndGender()
-            .withFaceDescriptors()
+        const displaySize = { width: elVideo.videoWidth, height: elVideo.videoHeight };
+        faceapi.matchDimensions(canvas, displaySize);
 
-        // ponerlas en su sitio
-        const resizedDetections = faceapi.resizeResults(detections, displaySize)
+        setInterval(async () => {
+            // Hacer las detecciones de cara
+            const detections = await faceapi.detectAllFaces(elVideo)
+                .withFaceLandmarks()
+                .withFaceDescriptors();
 
-        // limpiar el canvas
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+            // Verifica que haya detecciones válidas
+            if (detections.length === 0) {
+                console.warn('No se detectaron caras.');
+                return;
+            }
 
-        // dibujar las líneas
-        faceapi.draw.drawDetections(canvas, resizedDetections)
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
-        faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
+            // Ponerlas en su sitio
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-        resizedDetections.forEach(detection => {
-            const box = detection.detection.box
-            new faceapi.draw.DrawBox(box, {
-                label: Math.round(detection.age) + ' años ' + detection.gender
-            }).draw(canvas)
-        })
-    })
-})
+            // Limpiar el canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar las detecciones
+            faceapi.draw.drawDetections(canvas, resizedDetections);
+            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+        }, 100); // Ajusta el intervalo según sea necesario
+    });
+});
