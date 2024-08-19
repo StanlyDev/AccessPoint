@@ -10,48 +10,14 @@
     <div class="main-container">
         <div class="main-content">
             <main>
-                <div class="modal">
-                    <article class="modal-container">
-                        <header class="modal-container-header">
-                            <span class="modal-container-title">
-                                <svg aria-hidden="true" height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M14 9V4H5v16h6.056c.328.417.724.785 1.18 1.085l1.39.915H3.993A.993.993 0 0 1 3 21.008V2.992C3 2.455 3.449 2 4.002 2h10.995L21 8v1h-7zm-2 2h9v5.949c0 .99-.501 1.916-1.336 2.465L16.5 21.498l-3.164-2.084A2.953 2.953 0 0 1 12 16.95V11zm2 5.949c0 .316.162.614.436.795l2.064 1.36 2.064-1.36a.954.954 0 0 0 .436-.795V13h-5v3.949z" fill="currentColor"></path>
-                                </svg>
-                                Términos y Condiciones
-                            </span>
-                            <button class="icon-button">
-                                <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z" fill="currentColor"></path>
-                                </svg>
-                            </button>
-                        </header>
-                        <section class="modal-container-body rtf">
-                            <h2>1. Aceptación de los términos</h2>
-                            <p>Al utilizar el sistema de reconocimiento facial y/o el sistema de login con QR, usted acepta cumplir y estar sujeto a estos términos y condiciones. Si no está de acuerdo con alguna parte de estos términos, no debe usar el sistema.</p>
-
-                            <h2>2. Descripción del servicio</h2>
-                            <p>El sistema proporciona funcionalidades de login mediante reconocimiento facial utilizando face-api.js y código QR. Es un proyecto de código libre y se distribuye bajo la licencia MIT.</p>
-
-                            <h2>3. Uso del sistema</h2>
-                            <p>Usted es responsable del uso adecuado del sistema y debe asegurarse de no usarlo para actividades ilícitas. El sistema está diseñado para ser utilizado en conformidad con todas las leyes aplicables.</p>
-
-                            <h2>4. Privacidad y seguridad</h2>
-                            <p>El sistema de reconocimiento facial puede recopilar y almacenar datos biométricos. Nos comprometemos a proteger su privacidad y asegurar la confidencialidad de sus datos conforme a nuestra política de privacidad (Datos biométricos y acceso QR son eliminados a las 24hr de ser ingresados a la base de datos de forma automatica, esto para proteccion de informacion. Recordar que este es un sistema de codigo abierto y dicha funcion la puede modificar en su propio proyecto bajo su responsabilidad).</p>
-
-                            <h2>5. Limitación de responsabilidad</h2>
-                            <p>El sistema se proporciona "tal cual", sin garantías de ningún tipo, expresas o implícitas. No seremos responsables por cualquier daño directo, indirecto, incidental, especial o consecuente que resulte del uso o la imposibilidad de usar el sistema.</p>
-
-                            <h2>6. Cambios en los términos</h2>
-                            <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Las modificaciones serán efectivas inmediatamente después de su publicación en el sistema. Su uso continuado del sistema después de la publicación de los términos modificados constituirá su aceptación de los mismos.</p>
-                        </section>
-                        <footer class="modal-container-footer">
-                            <button class="button is-ghost">Decline</button>
-                            <a href="/src/pages/op/option-login.html"><button class="button is-primary">Accept</button></a>
-                        </footer>
-                    </article>
-                </div>
+                <form action="">
+                    <label for="" class="title">AccessPoint</label>
+                    <label for="" class="tag">Ingreso mediante reconocimiento facial</label>
+                    <div class="video-container">
+                        <video id="videoInput" autoplay muted playsinline></video>
+                        <canvas id="overlay"></canvas>
+                    </div>
+                </form>
             </main>
         </div>
     </div>
