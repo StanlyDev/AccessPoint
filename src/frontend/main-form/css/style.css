@@ -84,3 +84,19 @@ canvas {
         height: 280px;
     }
 }
+
+button {
+    background-color: #0056b3;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+button:hover {
+    background-color: #003d80;
+}
