@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 url = '/src/pages/gen/qr-gen.html';
                 break;
             case 'tab2':
-                url = '/';
+                url = '';
                 break;
             case 'tab3':
-                url = '/src/pages/login/qr-login.html';
+                url = '';
                 break;
             case 'tab4':
                 url = '/src/pages/login/face-login.html';
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tabId === 'tab1') {
                     initializeQR();
                 } else if (tabId === 'tab4') {
-                    initializeFaceLogin();
+                    loadFaceLoginScripts(); // Cargar scripts para face-login
                 }
             })
             .catch(err => {
@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeQR() {
+        // Asegúrate de que el script de qrcode.js se carga
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
         script.defer = true;
@@ -51,7 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const contenedorQR = document.getElementById('contQR');
             const form = document.getElementById('form');
             if (contenedorQR && form) {
+                // Crear una nueva instancia de QRCode
                 const QR = new QRCode(contenedorQR);
+
                 form.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const url = form.link.value.trim();
@@ -61,29 +64,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Por favor, ingresa una URL.');
                     }
                 });
+
+                document.querySelector('.btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = form.link.value.trim();
+                    if (url) {
+                        QR.makeCode(url);
+                    } else {
+                        alert('Por favor, ingresa una URL.');
+                    }
+                });
+            } else {
+                console.error('Elementos no encontrados en el DOM.');
             }
         };
     }
 
-    function initializeFaceLogin() {
-        if (typeof faceapi === 'undefined') {
-            const script = document.createElement('script');
-            script.src = '/src/frontend/face-login/main-form/face-api/js/face-api.min.js';
-            script.defer = true;
-            script.onload = () => {
-                loadFaceLoginScript();
-            };
-            document.head.appendChild(script);
-        } else {
-            loadFaceLoginScript();
-        }
-    }
+    function loadFaceLoginScripts() {
+        // Asegúrate de cargar face-api.js antes de script_webcam.js
+        const script1 = document.createElement('script');
+        script1.src = '/src/frontend/face-login/main-form/face-api/js/face-api.min.js';
+        script1.defer = true;
+        document.head.appendChild(script1);
 
-    function loadFaceLoginScript() {
-        const script = document.createElement('script');
-        script.src = '/src/frontend/face-login/main-form/face-api/js/script_webcam.js';
-        script.defer = true;
-        document.head.appendChild(script);
+        script1.onload = () => {
+            const script2 = document.createElement('script');
+            script2.src = '/src/frontend/face-login/main-form/face-api/js/script_webcam.js';
+            script2.defer = true;
+            document.head.appendChild(script2);
+        };
     }
 
     const tabs = document.querySelectorAll('input[name="tab"]');
@@ -95,5 +104,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    loadContent('tab1');
+    loadContent('tab1'); // Carga inicial de la primera pestaña
 });

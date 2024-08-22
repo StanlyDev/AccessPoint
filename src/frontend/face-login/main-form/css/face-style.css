@@ -68,6 +68,9 @@ canvas {
 }
 
 @media (max-width: 768px) {
+    .main-container{
+        padding: 5rem;
+    }
     .title {
         font-size: 1.5rem;
     }
