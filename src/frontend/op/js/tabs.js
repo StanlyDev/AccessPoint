@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const contenedorQR = document.getElementById('contQR');
-    const form = document.getElementById('form');
-
     function loadContent(tabId) {
         const main = document.querySelector('main');
         let url;
@@ -31,9 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.text())
             .then(html => {
                 main.innerHTML = html;
-                // Ejecuta el script específico para el nuevo contenido cargado
+
+                // Ejecutar script específico para cada pestaña
                 if (tabId === 'tab1') {
                     initializeQR();
+                } else if (tabId === 'tab4') {
+                    initializeFaceLogin();
                 }
             })
             .catch(err => {
@@ -42,19 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeQR() {
-        // Asegúrate de que el script de QR se cargue correctamente
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
         script.defer = true;
         document.head.appendChild(script);
 
         script.onload = () => {
-            // Espera a que el script esté completamente cargado
             const contenedorQR = document.getElementById('contQR');
             const form = document.getElementById('form');
             if (contenedorQR && form) {
                 const QR = new QRCode(contenedorQR);
-
                 form.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const url = form.link.value.trim();
@@ -64,20 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Por favor, ingresa una URL.');
                     }
                 });
-
-                document.querySelector('.btn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const url = form.link.value.trim();
-                    if (url) {
-                        QR.makeCode(url);
-                    } else {
-                        alert('Por favor, ingresa una URL.');
-                    }
-                });
-            } else {
-                console.error('Elementos no encontrados en el DOM.');
             }
         };
+    }
+
+    function initializeFaceLogin() {
+        if (typeof faceapi === 'undefined') {
+            const script = document.createElement('script');
+            script.src = '/src/frontend/face-login/main-form/face-api/js/face-api.min.js';
+            script.defer = true;
+            script.onload = () => {
+                loadFaceLoginScript();
+            };
+            document.head.appendChild(script);
+        } else {
+            loadFaceLoginScript();
+        }
+    }
+
+    function loadFaceLoginScript() {
+        const script = document.createElement('script');
+        script.src = '/src/frontend/face-login/main-form/face-api/js/script_webcam.js';
+        script.defer = true;
+        document.head.appendChild(script);
     }
 
     const tabs = document.querySelectorAll('input[name="tab"]');
